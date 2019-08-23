@@ -99,6 +99,14 @@ function processList() {
 
                             socket.send(JSON.stringify({"op": "console_output", "message": win_data.message.blue}));
 
+                            if ( win_data.message.blue.indexOf('Done') !== -1 ) {
+
+                                win_ready = true;
+
+                                win_ready.close();
+                                
+                            }
+
                         }
 
                     });
@@ -127,6 +135,14 @@ function processList() {
                         if ( mac_data.op === 'console_output' ) {
 
                             socket.send(JSON.stringify({"op": "console_output", "message": mac_data.message.red}));
+
+                            if ( mac_data.message.blue.indexOf('Done') !== -1 ) {
+
+                                mac_ready = true;
+
+                                ws_mac.close();
+
+                            }
 
                         }
 
@@ -157,6 +173,16 @@ function processList() {
 
                             socket.send(JSON.stringify({"op": "console_output", "message": linux_data.message.yellow}));
 
+                            if ( linux_data.message.blue.indexOf('Done') !== -1 ) {
+
+                                linux_ready = true;
+
+                                ws_linux.close();
+
+                            }
+
+                            
+
                         }
 
                     });
@@ -173,7 +199,7 @@ function processList() {
                         
                             // Mark as ready on database
                             socket.send(JSON.stringify({"op": "console_output", "message": 'Congratulations! Your job has completed!'}));
-                        
+
                         });
 
                     }

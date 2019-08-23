@@ -1,5 +1,5 @@
 {
-  "name": "electron-builder-online",
+  "name": "electron-builder-online-server",
   "version": "0.0.1",
   "description": "Build electron applications online for windows, linux and mac os x. Automatically deploy them to GitHub Releases",
   "main": "electron-builder-online-server.js",
@@ -10,7 +10,7 @@
     "electron",
     "electron-builder"
   ],
-  "author": "Paulo André Rieck",
+  "author": "Paulo André Rieck <paulo.rieck@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "axios": "^0.19.0",
@@ -19,5 +19,17 @@
     "express-session": "^1.16.2",
     "nedb": "^1.8.0",
     "ws": "^7.1.2"
-  }
+  },
+  "bin": {
+    "electron-builder-online-server": "./startup.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paulorieck/electron-builder-online-server.git"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ]
 }
