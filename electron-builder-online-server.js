@@ -247,25 +247,36 @@ wss.on('connection', (socket, req) => {
 
         if ( data.op === 'subscribe' ) {
 
-            var parameters = JSON.parse(req.body.parameters);
+            var parameters = data.parameters;
             parameters.processed = false;
             parameters.requisition_time = (new Date()).getTime();
 
-            // Store on nedb project information to process when compiler is unocupied
-            requests_historic.insert(obj, function (error, newDoc) {
+            var minimist_parameters = minimist(parameters);
+            if ( minimist_parameters.email === null || minimist_parameters.email === "" ) {
 
-                if ( error ) {
-                    console.log("Error:");
-                    console.log(error);
-                }
+                socket.send(JSON.stringify({"op": "console_output", "message": 'Error! You need to inform a valid email!'}));
 
-                socket.parameters = newDoc;
+            } else {
 
-                sockets.push(socket);
-                
-                socket.send(JSON.stringify({"op": "returned_subscribe", "status": true, "subscription": newDoc._id}));
+                // Store on nedb project information to process when compiler is unocupied
+                requests_historic.insert(obj, function (error, newDoc) {
 
-            });
+                    if ( error ) {
+                        console.log("Error:");
+                        console.log(error);
+                    }
+
+                    socket.parameters = newDoc;
+
+                    sockets.push(socket);
+                    
+                    socket.send(JSON.stringify({"op": "returned_subscribe", "status": true, "subscription": newDoc._id}));
+
+                });
+
+            }
+
+            
 
         } else if ( data.op === 'getQueueSize' ) {
 
