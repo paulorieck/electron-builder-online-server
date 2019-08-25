@@ -265,7 +265,7 @@ wss.on('connection', (socket, req) => {
 
             } 
 
-            if ( typeof minimist_parameters.gh_token === "undefined" || minimist_parameters.gh_token === null || minimist_parameters.gh_token ) {
+            if ( typeof minimist_parameters.gh_token === "undefined" || minimist_parameters.gh_token === null || minimist_parameters.gh_token === "" ) {
 
                 socket.send(JSON.stringify({"op": "console_output", "message": "Error! You need to inform a valid email! --gh_token='XXXXXXXXXXXXXXX'".red}));
                 socket.send(JSON.stringify({"op": "console_output", "message": "Your GitHub tokens will not be stored!".yellow}));
