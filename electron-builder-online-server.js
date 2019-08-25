@@ -253,14 +253,27 @@ wss.on('connection', (socket, req) => {
 
             var minimist_parameters = minimist(parameters);
 
-            console.log("minimist_parameters.email: ");
-            console.log(minimist_parameters.email);
+            console.log("minimist_parameters: ");
+            console.log(minimist_parameters);
+
+            var valid = true;
 
             if ( typeof minimist_parameters.email === "undefined" || minimist_parameters.email === null || minimist_parameters.email === "" ) {
 
-                socket.send(JSON.stringify({"op": "console_output", "message": 'Error! You need to inform a valid email!'}));
+                socket.send(JSON.stringify({"op": "console_output", "message": "Error! You need to inform a valid email! --email='example@example.com'".red}));
+                valid = false;
 
-            } else {
+            } 
+
+            if ( typeof minimist_parameters.gh_token === "undefined" || minimist_parameters.gh_token === null || minimist_parameters.gh_token ) {
+
+                socket.send(JSON.stringify({"op": "console_output", "message": "Error! You need to inform a valid email! --gh_token='XXXXXXXXXXXXXXX'".red}));
+                socket.send(JSON.stringify({"op": "console_output", "message": "Your GitHub tokens will not be stored!".yellow}));
+                valid = false;
+
+            }
+            
+            if ( valid ) {
 
                 // Store on nedb project information to process when compiler is unocupied
                 requests_historic.insert(obj, function (error, newDoc) {

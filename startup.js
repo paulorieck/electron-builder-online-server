@@ -34,7 +34,7 @@ if ( os.platform() === "win32" ) {
   const electron = spawn("node", args, options);
 
   electron.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
+      console.log(data);
   });
 
   electron.stderr.on('data', (data) => {
