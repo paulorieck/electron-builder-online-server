@@ -252,7 +252,7 @@ wss.on('connection', (socket, req) => {
             parameters.requisition_time = (new Date()).getTime();
 
             var minimist_parameters = minimist(parameters);
-            if ( minimist_parameters.email === null || minimist_parameters.email === "" ) {
+            if ( typeof minimist_parameters.email === "undefined" || minimist_parameters.email === null || minimist_parameters.email === "" ) {
 
                 socket.send(JSON.stringify({"op": "console_output", "message": 'Error! You need to inform a valid email!'}));
 
