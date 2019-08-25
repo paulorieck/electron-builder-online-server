@@ -265,6 +265,9 @@ wss.on('connection', (socket, req) => {
 
             } 
 
+            console.log("typeof minimist_parameters.gh_token: "+(typeof minimist_parameters.gh_token));
+            console.log("minimist_parameters.gh_token: "+minimist_parameters.gh_token);
+
             if ( typeof minimist_parameters.gh_token === "undefined" || minimist_parameters.gh_token === null || minimist_parameters.gh_token === "" ) {
 
                 socket.send(JSON.stringify({"op": "console_output", "message": "Error! You need to inform a valid email! --gh_token='XXXXXXXXXXXXXXX'".red}));
