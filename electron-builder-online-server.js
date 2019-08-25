@@ -1,10 +1,14 @@
-var express = require("express");
-var session = require('express-session');
-var minimist = require('minimist');
+const express = require("express");
+const session = require('express-session');
+const minimist = require('minimist');
+const os = require('os');
+const path = require('path');
+const fs = require('fs');
 require('colors');
 
 const Datastore = require('nedb');
-const requests_historic = new Datastore({filename: "nedb/requests_historic.db", autoload: true});
+const requests_historic = new Datastore({filename: path.join(os.homedir(), 'electron-builder-online', 'nedb', 'requests_history.db'), autoload: true});
+const emails = new Datastore({filename: path.join(os.homedir(), 'electron-builder-online', 'nedb', 'emails.db'), autoload: true});
 
 var NedbStore = require('nedb-session-store')(session);
 
@@ -16,8 +20,6 @@ const WebSocketServer = require('ws').Server;
 var server = http.createServer(app);
 const wss = new WebSocketServer({server});
 
-var confs = JSON.parse(fs.readFileSync("configs.json"));
-
 var session_conf = 
 {
     secret: 'electron-builder-online_h6cg89rjdfl0x8',
@@ -25,7 +27,7 @@ var session_conf =
         maxAge: 3600000
     },
     store: new NedbStore({
-        filename: 'nedbs/sessions.db'
+        filename: path.join(os.homedir(), '.electron-builder-online', 'nedbs', 'sessions.db')
     })
 };
 var sess = session(session_conf);
@@ -41,10 +43,6 @@ app.use(bodyParser.urlencoded({extended: true})); // to support URL-encoded bodi
 
 wss.on('error', err => {
     console.dir(err);
-});
-
-server.listen(8080, function () {
-    console.log('Electron Builder Online Web Server listening on port 8080!');
 });
 
 var isProcessing = false;
@@ -86,7 +84,7 @@ function processList() {
                     delete win_parameters.linux;
                     delete win_parameters.mac;
 
-                    var ws_win = new WebSocket('ws://??????????:8080/');
+                    var ws_win = new WebSocket('ws://localhost:8006/');
                     ws_win.on('open', function open() {
                         socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Windows Builder.'}));
                         ws.send(JSON.stringify({'op': 'subscribe', 'parameters': docs[0]}));
@@ -99,12 +97,11 @@ function processList() {
 
                             socket.send(JSON.stringify({"op": "console_output", "message": win_data.message.blue}));
 
-                            if ( win_data.message.blue.indexOf('Done') !== -1 ) {
+                        } else if ( win_data.op === 'job_concluded' ) {
 
+                            if ( win_data.status === true ) {
                                 win_ready = true;
-
                                 win_ready.close();
-                                
                             }
 
                         }
@@ -123,7 +120,7 @@ function processList() {
                     delete mac_parameters.win;
                     delete mac_parameters.linux;
 
-                    var ws_mac = new WebSocket('ws://??????????:8080/');
+                    var ws_mac = new WebSocket('ws://localhost:8007/');
                     ws_mac.on('open', function open() {
                         socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Mac Builder.'}));
                         ws.send(JSON.stringify({'op': 'subscribe', 'parameters': docs[0]}));
@@ -144,6 +141,13 @@ function processList() {
 
                             }
 
+                        } else if ( win_data.op === 'job_concluded' ) {
+
+                            if ( win_data.status === true ) {
+                                win_ready = true;
+                                win_ready.close();
+                            }
+
                         }
 
                     });
@@ -160,7 +164,7 @@ function processList() {
                     delete linux_parameters.mac;
                     delete linux_parameters.linux;
 
-                    var ws_linux = new WebSocket('ws://??????????:8080/');
+                    var ws_linux = new WebSocket('ws://localhost:8005/');
                     ws_linux.on('open', function open() {
                         socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Linux Builder.'}));
                         ws.send(JSON.stringify({'op': 'subscribe', 'parameters': docs[0]}));
@@ -181,7 +185,12 @@ function processList() {
 
                             }
 
-                            
+                        } else if ( win_data.op === 'job_concluded' ) {
+
+                            if ( win_data.status === true ) {
+                                win_ready = true;
+                                win_ready.close();
+                            }
 
                         }
 
@@ -290,6 +299,6 @@ wss.on('listening', () => {
 
 // -----Web Socket (END) --------------------
 
-server.listen(confs.mirror_server, function () {
-    console.log('IPFSSyncro Web Server listening on port '+confs.mirror_server+'!');
+server.listen(8080, function () {
+    console.log('Electron-builder-online-server Web Server listening on port 8080!');
 });

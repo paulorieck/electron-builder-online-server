@@ -18,6 +18,7 @@
     "express": "^4.17.1",
     "express-session": "^1.16.2",
     "nedb": "^1.8.0",
+    "nedb-session-store": "^1.1.2",
     "ws": "^7.1.2"
   },
   "bin": {
