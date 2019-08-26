@@ -256,6 +256,9 @@ wss.on('connection', (socket, req) => {
             console.log("Package URL: "+minimist_parameters.repository.replace("git+", "").replace(".git", "")+"/raw/master/package.json");
             axios.get(minimist_parameters.repository.replace("git+", "").replace(".git", "")+"/raw/master/package.json").then(function (package_) {
 
+                console.log("package_:");
+                console.log(package_);
+
                 package_ = JSON.parse(package_);
 
                 minimist_parameters = Object.assign(minimist_parameters, {"version": package_.version});
