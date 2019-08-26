@@ -52,7 +52,12 @@ var isProcessing = false;
 
 function processList() {
 
+    console.log("Checking for job to process...");
+
     requests_historic.find({"processed": false, "aborted": false}, function (error, docs) {
+
+        console.log("processList ==> Queue to processs:");
+        console.log(docs);
 
         if ( error ) {
             console.log("Error:");
@@ -258,15 +263,9 @@ wss.on('connection', (socket, req) => {
 
                 package_ = package_.data;
 
-                console.log("package_:");
-                console.log(package_);
-
                 minimist_parameters = Object.assign(minimist_parameters, {"version": package_.version});
 
                 delete minimist_parameters._;
-
-                console.log("minimist_parameters: ");
-                console.log(minimist_parameters);
 
                 var valid = true;
 
