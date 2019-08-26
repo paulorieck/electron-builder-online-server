@@ -253,9 +253,6 @@ wss.on('connection', (socket, req) => {
 
             var minimist_parameters = minimist(parameters);
 
-            console.log("minimist_parameters: ");
-            console.log(minimist_parameters);
-
             var valid = true;
 
             if ( typeof minimist_parameters.email === "undefined" || minimist_parameters.email === null || minimist_parameters.email === "" ) {
@@ -279,6 +276,9 @@ wss.on('connection', (socket, req) => {
             if ( valid ) {
 
                 delete minimist_parameters._;
+
+                console.log("minimist_parameters: ");
+                console.log(minimist_parameters);
 
                 // Store on nedb project information to process when compiler is unocupied
                 requests_historic.insert(parameters, function (error, newDoc) {
