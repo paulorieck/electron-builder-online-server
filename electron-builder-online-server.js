@@ -161,7 +161,7 @@ function processList() {
 
                                     }
 
-                                } else if ( win_data.op === 'job_concluded' ) {
+                                } else if ( mac_data.op === 'job_concluded' ) {
 
                                     if ( win_data.status === true ) {
                                         win_ready = true;
@@ -205,7 +205,7 @@ function processList() {
 
                                     }
 
-                                } else if ( win_data.op === 'job_concluded' ) {
+                                } else if ( linux_data.op === 'job_concluded' ) {
 
                                     if ( win_data.status === true ) {
                                         win_ready = true;
