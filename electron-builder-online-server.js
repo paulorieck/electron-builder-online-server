@@ -16,7 +16,8 @@ var NedbStore = require('nedb-session-store')(session);
 var app = express();
 
 const http = require('http');
-const WebSocketServer = require('ws').Server;
+const WebSocket = require('ws');
+const WebSocketServer = WebSocket.Server;
 
 var server = http.createServer(app);
 const wss = new WebSocketServer({server});
