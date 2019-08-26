@@ -121,7 +121,7 @@ function processList() {
 
                                     if ( win_data.status === true ) {
                                         win_ready = true;
-                                        win_ready.close();
+                                        ws_win.close();
                                     }
 
                                 }
@@ -163,9 +163,9 @@ function processList() {
 
                                 } else if ( mac_data.op === 'job_concluded' ) {
 
-                                    if ( win_data.status === true ) {
-                                        win_ready = true;
-                                        win_ready.close();
+                                    if ( mac_data.status === true ) {
+                                        mac_ready = true;
+                                        ws_mac.close();
                                     }
 
                                 }
@@ -207,9 +207,9 @@ function processList() {
 
                                 } else if ( linux_data.op === 'job_concluded' ) {
 
-                                    if ( win_data.status === true ) {
-                                        win_ready = true;
-                                        win_ready.close();
+                                    if ( linux_data.status === true ) {
+                                        linux_ready = true;
+                                        ws_linux.close();
                                     }
 
                                 }
