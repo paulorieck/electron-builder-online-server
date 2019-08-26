@@ -117,6 +117,13 @@ function processList() {
 
                                     socket.send(JSON.stringify({"op": "console_output", "message": win_data.message.blue}));
 
+                                    if ( win_data.message.blue.indexOf('Done') !== -1 ) {
+
+                                        win_ready = true;
+                                        ws_win.close();
+
+                                    }
+
                                 } else if ( win_data.op === 'job_concluded' ) {
 
                                     if ( win_data.status === true ) {
@@ -156,7 +163,6 @@ function processList() {
                                     if ( mac_data.message.blue.indexOf('Done') !== -1 ) {
 
                                         mac_ready = true;
-
                                         ws_mac.close();
 
                                     }
@@ -200,7 +206,6 @@ function processList() {
                                     if ( linux_data.message.blue.indexOf('Done') !== -1 ) {
 
                                         linux_ready = true;
-
                                         ws_linux.close();
 
                                     }
