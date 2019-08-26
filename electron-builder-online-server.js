@@ -234,7 +234,7 @@ wss.on('connection', (socket, req) => {
 
     console.log('WebSocket client connected...');
     sess(req, {}, () => {
-        console.log('Session is parsed!');
+        //console.log('Session is parsed!');
     });
 
     socket.on('error', err => {
@@ -244,9 +244,6 @@ wss.on('connection', (socket, req) => {
     socket.on('message', data => {
         
         data = JSON.parse(data);
-
-        console.log("received message: ");
-        console.log(data);
 
         if ( data.op === 'subscribe' ) {
 
@@ -261,6 +258,11 @@ wss.on('connection', (socket, req) => {
                 package_ = JSON.parse(package_);
 
                 minimist_parameters = Object.assign(minimist_parameters, {"version": package_.version});
+
+                delete minimist_parameters._;
+
+                console.log("minimist_parameters: ");
+                console.log(minimist_parameters);
 
                 var valid = true;
 
@@ -285,11 +287,6 @@ wss.on('connection', (socket, req) => {
                         
                         if ( valid ) {
             
-                            delete minimist_parameters._;
-            
-                            console.log("minimist_parameters: ");
-                            console.log(minimist_parameters);
-            
                             // Store on nedb project information to process when compiler is unocupied
                             requests_historic.insert(minimist_parameters, function (error, newDoc) {
             
@@ -297,6 +294,8 @@ wss.on('connection', (socket, req) => {
                                     console.log("Error:");
                                     console.log(error);
                                 }
+
+                                socket.send(JSON.stringify({"op": "console_output", "message": "Succesfully registered your job on queue!".yellow}));
             
                                 socket.parameters = newDoc;
             
