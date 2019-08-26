@@ -4,6 +4,7 @@ const minimist = require('minimist');
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
 require('colors');
 
 const Datastore = require('nedb');
@@ -44,6 +45,8 @@ app.use(bodyParser.urlencoded({extended: true})); // to support URL-encoded bodi
 wss.on('error', err => {
     console.dir(err);
 });
+
+var sockets = [];
 
 var isProcessing = false;
 
