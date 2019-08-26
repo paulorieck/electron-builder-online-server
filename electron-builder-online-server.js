@@ -9,9 +9,9 @@ var cron = require('node-cron');
 require('colors');
 
 const Datastore = require('nedb');
-const requests_historic = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedb', 'requests_history.db'), autoload: true});
-const queues_size = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedb', 'queues_size.db'), autoload: true});
-const emails = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedb', 'emails.db'), autoload: true});
+const requests_historic = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedbs', 'requests_history.db'), autoload: true});
+const queues_size = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedbs', 'queues_size.db'), autoload: true});
+const emails = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedbs', 'emails.db'), autoload: true});
 
 var NedbStore = require('nedb-session-store')(session);
 
@@ -317,12 +317,11 @@ wss.on('connection', (socket, req) => {
 
             var minimist_parameters = minimist(parameters);
 
-            console.log("Package URL: "+minimist_parameters.repository.replace("git+", "").replace(".git", "")+"/raw/master/package.json");
             axios.get(minimist_parameters.repository.replace("git+", "").replace(".git", "")+"/raw/master/package.json").then(function (package_) {
 
                 package_ = package_.data;
 
-                minimist_parameters = Object.assign(minimist_parameters, {"version": package_.version});
+                minimist_parameters = Object.assign(minimist_parameters, {"version": package_.version, "name": package_.name});
 
                 delete minimist_parameters._;
 
