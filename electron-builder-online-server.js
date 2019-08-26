@@ -281,7 +281,7 @@ wss.on('connection', (socket, req) => {
                 console.log(minimist_parameters);
 
                 // Store on nedb project information to process when compiler is unocupied
-                requests_historic.insert(parameters, function (error, newDoc) {
+                requests_historic.insert(minimist_parameters, function (error, newDoc) {
 
                     if ( error ) {
                         console.log("Error:");
