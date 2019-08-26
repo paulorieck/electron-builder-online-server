@@ -77,151 +77,173 @@ function processList() {
                     }
                 }
 
-                socket.send(JSON.stringify({"op": "console_output", "message": "Starting to process your project!!!"}));
+                if ( socket === null ) {
 
-                console.log("docs[0]: ");
-                console.log(docs[0]);
-
-                var win_ready = true;
-                if ( docs[0].win === true ) {
-
-                    win_ready = false;
-
-                    var win_parameters = JSON.parse(JSON.stringify(docs[0]));
-
-                    delete win_parameters.linux;
-                    delete win_parameters.mac;
-
-                    var ws_win = new WebSocket('ws://localhost:8006/');
-                    ws_win.on('open', function open() {
-                        socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Windows Builder.'}));
-                        ws.send(JSON.stringify({'op': 'subscribe', 'parameters': win_parameters}));
+                    // Abort
+                    requests_historic.update({_id: docs[0]._id}, {$set: {aborted: true}}, {multi: false}, function (error, docs) {
+                        isProcessing = false;
                     });
 
-                    ws_win.on('message', function incoming(win_data) {
+                } else {
 
-                        win_data = JSON.parse(win_data);
-                        if ( win_data.op === 'console_output' ) {
+                    if ( socket === null ) {
 
-                            socket.send(JSON.stringify({"op": "console_output", "message": win_data.message.blue}));
-
-                        } else if ( win_data.op === 'job_concluded' ) {
-
-                            if ( win_data.status === true ) {
-                                win_ready = true;
-                                win_ready.close();
-                            }
-
-                        }
-
-                    });
-
-                }
-                
-                var mac_ready = true;
-                if ( docs[0].mac === true ) {
-
-                    mac_ready = false;
-
-                    var mac_parameters = JSON.parse(JSON.stringify(docs[0]));
-
-                    delete mac_parameters.win;
-                    delete mac_parameters.linux;
-
-                    var ws_mac = new WebSocket('ws://localhost:8007/');
-                    ws_mac.on('open', function open() {
-                        socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Mac Builder.'}));
-                        ws.send(JSON.stringify({'op': 'subscribe', 'parameters': mac_parameters}));
-                    });
-
-                    ws_mac.on('message', function incoming(mac_data) {
-
-                        mac_data = JSON.parse(mac_data);
-                        if ( mac_data.op === 'console_output' ) {
-
-                            socket.send(JSON.stringify({"op": "console_output", "message": mac_data.message.red}));
-
-                            if ( mac_data.message.blue.indexOf('Done') !== -1 ) {
-
-                                mac_ready = true;
-
-                                ws_mac.close();
-
-                            }
-
-                        } else if ( win_data.op === 'job_concluded' ) {
-
-                            if ( win_data.status === true ) {
-                                win_ready = true;
-                                win_ready.close();
-                            }
-
-                        }
-
-                    });
-
-                }
-                
-                var linux_ready = true;
-                if ( docs[0].linux === true ) {
-
-                    linux_ready = false;
-
-                    var linux_parameters = JSON.parse(JSON.stringify(docs[0]));
-
-                    delete linux_parameters.mac;
-                    delete linux_parameters.linux;
-
-                    var ws_linux = new WebSocket('ws://localhost:8005/');
-                    ws_linux.on('open', function open() {
-                        socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Linux Builder.'}));
-                        ws.send(JSON.stringify({'op': 'subscribe', 'parameters': linux_parameters}));
-                    });
-
-                    ws_linux.on('message', function incoming(linux_data) {
-
-                        linux_data = JSON.parse(linux_data);
-                        if ( linux_data.op === 'console_output' ) {
-
-                            socket.send(JSON.stringify({"op": "console_output", "message": linux_data.message.yellow}));
-
-                            if ( linux_data.message.blue.indexOf('Done') !== -1 ) {
-
-                                linux_ready = true;
-
-                                ws_linux.close();
-
-                            }
-
-                        } else if ( win_data.op === 'job_concluded' ) {
-
-                            if ( win_data.status === true ) {
-                                win_ready = true;
-                                win_ready.close();
-                            }
-
-                        }
-
-                    });
-
-                }
-
-                setInterval(function () {
-
-                    if ( win_ready && mac_ready && linux_ready ) {
-
-                        socket = null;
-
-                        requests_historic.update({_id: docs[0]._id}, {$set: {processed: true}}, {multi: false}, function (error, docs) {
-                        
-                            // Mark as ready on database
-                            socket.send(JSON.stringify({"op": "console_output", "message": 'Congratulations! Your job has completed!'}));
-
+                        // Abort
+                        requests_historic.update({_id: docs[0]._id}, {$set: {aborted: true}}, {multi: false}, function (error, docs) {
+                            isProcessing = false;
                         });
+                        
+                    } else {
+
+                        socket.send(JSON.stringify({"op": "console_output", "message": "Starting to process your project!!!"}));
+
+                        console.log("docs[0]: ");
+                        console.log(docs[0]);
+
+                        var win_ready = true;
+                        if ( docs[0].win === true ) {
+
+                            win_ready = false;
+
+                            var win_parameters = JSON.parse(JSON.stringify(docs[0]));
+
+                            delete win_parameters.linux;
+                            delete win_parameters.mac;
+
+                            var ws_win = new WebSocket('ws://localhost:8006/');
+                            ws_win.on('open', function open() {
+                                socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Windows Builder.'}));
+                                ws.send(JSON.stringify({'op': 'subscribe', 'parameters': win_parameters}));
+                            });
+
+                            ws_win.on('message', function incoming(win_data) {
+
+                                win_data = JSON.parse(win_data);
+                                if ( win_data.op === 'console_output' ) {
+
+                                    socket.send(JSON.stringify({"op": "console_output", "message": win_data.message.blue}));
+
+                                } else if ( win_data.op === 'job_concluded' ) {
+
+                                    if ( win_data.status === true ) {
+                                        win_ready = true;
+                                        win_ready.close();
+                                    }
+
+                                }
+
+                            });
+
+                        }
+                        
+                        var mac_ready = true;
+                        if ( docs[0].mac === true ) {
+
+                            mac_ready = false;
+
+                            var mac_parameters = JSON.parse(JSON.stringify(docs[0]));
+
+                            delete mac_parameters.win;
+                            delete mac_parameters.linux;
+
+                            var ws_mac = new WebSocket('ws://localhost:8007/');
+                            ws_mac.on('open', function open() {
+                                socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Mac Builder.'}));
+                                ws.send(JSON.stringify({'op': 'subscribe', 'parameters': mac_parameters}));
+                            });
+
+                            ws_mac.on('message', function incoming(mac_data) {
+
+                                mac_data = JSON.parse(mac_data);
+                                if ( mac_data.op === 'console_output' ) {
+
+                                    socket.send(JSON.stringify({"op": "console_output", "message": mac_data.message.red}));
+
+                                    if ( mac_data.message.blue.indexOf('Done') !== -1 ) {
+
+                                        mac_ready = true;
+
+                                        ws_mac.close();
+
+                                    }
+
+                                } else if ( win_data.op === 'job_concluded' ) {
+
+                                    if ( win_data.status === true ) {
+                                        win_ready = true;
+                                        win_ready.close();
+                                    }
+
+                                }
+
+                            });
+
+                        }
+                        
+                        var linux_ready = true;
+                        if ( docs[0].linux === true ) {
+
+                            linux_ready = false;
+
+                            var linux_parameters = JSON.parse(JSON.stringify(docs[0]));
+
+                            delete linux_parameters.mac;
+                            delete linux_parameters.linux;
+
+                            var ws_linux = new WebSocket('ws://localhost:8005/');
+                            ws_linux.on('open', function open() {
+                                socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Linux Builder.'}));
+                                ws.send(JSON.stringify({'op': 'subscribe', 'parameters': linux_parameters}));
+                            });
+
+                            ws_linux.on('message', function incoming(linux_data) {
+
+                                linux_data = JSON.parse(linux_data);
+                                if ( linux_data.op === 'console_output' ) {
+
+                                    socket.send(JSON.stringify({"op": "console_output", "message": linux_data.message.yellow}));
+
+                                    if ( linux_data.message.blue.indexOf('Done') !== -1 ) {
+
+                                        linux_ready = true;
+
+                                        ws_linux.close();
+
+                                    }
+
+                                } else if ( win_data.op === 'job_concluded' ) {
+
+                                    if ( win_data.status === true ) {
+                                        win_ready = true;
+                                        win_ready.close();
+                                    }
+
+                                }
+
+                            });
+
+                        }
+
+                        setInterval(function () {
+
+                            if ( win_ready && mac_ready && linux_ready ) {
+
+                                socket = null;
+
+                                requests_historic.update({_id: docs[0]._id}, {$set: {processed: true}}, {multi: false}, function (error, docs) {
+                                
+                                    // Mark as ready on database
+                                    socket.send(JSON.stringify({"op": "console_output", "message": 'Congratulations! Your job has completed!'}));
+
+                                });
+
+                            }
+
+                        }, 1000);
 
                     }
 
-                }, 1000);
+                }
 
             }
 
