@@ -222,12 +222,11 @@ function processList() {
 
                             if ( win_ready && mac_ready && linux_ready ) {
 
-                                socket = null;
-
                                 requests_historic.update({_id: docs[0]._id}, {$set: {processed: true}}, {multi: false}, function (error, docs) {
                                 
                                     // Mark as ready on database
                                     socket.send(JSON.stringify({"op": "console_output", "message": 'Congratulations! Your job has completed!'}));
+                                    socket = null;
 
                                 });
 
