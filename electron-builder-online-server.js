@@ -253,7 +253,7 @@ wss.on('connection', (socket, req) => {
 
             var minimist_parameters = minimist(parameters);
 
-            var package = JSON.parse(fs.readFileSync("package.json"));
+            var package = JSON.parse(fs.readFileSync("../../package.json"));
 
             minimist_parameters = Object.assign(minimist_parameters, {"repository": package.repository.url, "version": package.version});
 
