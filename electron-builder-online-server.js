@@ -5,10 +5,12 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
+var cron = require('node-cron');
 require('colors');
 
 const Datastore = require('nedb');
 const requests_historic = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedb', 'requests_history.db'), autoload: true});
+const queues_size = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedb', 'queues_size.db'), autoload: true});
 const emails = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedb', 'emails.db'), autoload: true});
 
 var NedbStore = require('nedb-session-store')(session);
@@ -65,7 +67,7 @@ function processList() {
             console.log(error);
         } else {
         
-            if ( docs.length > 0 && !isProcessing ) {
+            if ( docs.length > 0 ) {
 
                 isProcessing =  true;
 
@@ -96,9 +98,6 @@ function processList() {
                     } else {
 
                         socket.send(JSON.stringify({"op": "console_output", "message": "Starting to process your project!!!"}));
-
-                        console.log("docs[0]: ");
-                        console.log(docs[0]);
 
                         var win_ready = true;
                         if ( docs[0].win === true ) {
@@ -254,8 +253,51 @@ function processList() {
 }
 
 setInterval(function () {
-    processList()
+    if ( !isProcessing ) {
+        processList();
+    }
 }, 1000);
+
+cron.schedule('0,10,20,30,40,50 * * * * *', () => {
+    
+    getQueueSize(function (docslength) {
+        if ( docslength !== 0 ) {
+            queues_size.insert({"time": Math.round((new Date()).getTime()/1000), "l": docslength});
+        }
+    });
+
+});
+
+function getQueueSize(callback) {
+
+    requests_historic.find({"processed": false, "aborted": false}, function (error, docs) {
+        if ( error ) {
+            console.log("Error:");
+            console.log(error);
+        } else {
+            callback(docs.length);
+        }
+    });
+
+}
+
+app.post('/getLast5MinutesQueues', function (req, res) {
+
+    var init = (new Date()).getTime()-(60*60*1000);
+    queues_size.find({"time": {$gt: init}}, function (error, docs) {
+        res.send(docs);
+    });
+    
+});
+
+app.post('/getLastQueueNumber', function (req, res) {
+
+    var init = (new Date()).getTime()-(10*1000);
+    queues_size.find({"time": {$gt: init}}, function (error, docs) {
+        res.send(docs[0]);
+    });
+    
+});
 
 wss.on('connection', (socket, req) => {
 
@@ -309,6 +351,10 @@ wss.on('connection', (socket, req) => {
                             valid = false;
             
                         }
+
+                        if ( typeof minimist_parameters.install_with === "undefined" || minimist_parameters.install_with === null || minimist_parameters.install_with === "" ) {
+                            minimist_parameters.install_with = "yarn";
+                        }
                         
                         if ( valid ) {
 
@@ -353,13 +399,8 @@ wss.on('connection', (socket, req) => {
             
         } else if ( data.op === 'getQueueSize' ) {
 
-            requests_historic.find({processed: false}, function (error, docs) {
-                if ( error ) {
-                    console.log("Error:");
-                    console.log(error);
-                } else {
-                    socket.send(JSON.stringify({"op": "returned_getQueueSize", "size": docs.length}));
-                }
+            getQueueSize(function (docslength) {
+                socket.send(JSON.stringify({"op": "returned_getQueueSize", "size": docslength}));
             });
 
         }
@@ -369,8 +410,6 @@ wss.on('connection', (socket, req) => {
     socket.on('close', () => {
 
         // Eliminates socket from sockets array
-        
-
         console.log('Socket closed');
 
     });

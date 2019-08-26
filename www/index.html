@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Electron Builder Online</title>
+        <script src='https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js'></script>
+        <script src='utils.js'></script>
+    </head>
+    <body>
+        <h1>Electron Builder Online Service</h1>
+        <div style="width: 80%; max-height: 500px;" height="400">
+            <canvas id="canvas" width="400" height="400"></canvas>
+        </div>
+        <script>
+
+            var config = {
+                type: 'line',
+                data: {
+                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                    datasets: [{
+                        label: 'Number of queued jobs',
+                        backgroundColor: window.chartColors.red,
+                        borderColor: window.chartColors.blue,
+                        data: [
+                            randomScalingFactor(),
+                            randomScalingFactor(),
+                            randomScalingFactor(),
+                            randomScalingFactor(),
+                            randomScalingFactor(),
+                            randomScalingFactor(),
+                            randomScalingFactor()
+                        ],
+                        fill: false,
+                    }/*, {
+                        label: 'My Second dataset',
+                        fill: false,
+                        backgroundColor: window.chartColors.blue,
+                        borderColor: window.chartColors.blue,
+                        data: [
+                            randomScalingFactor(),
+                            randomScalingFactor(),
+                            randomScalingFactor(),
+                            randomScalingFactor(),
+                            randomScalingFactor(),
+                            randomScalingFactor(),
+                            randomScalingFactor()
+                        ],
+                    }*/]
+                },
+                options: {
+                    responsive: true,
+                    aspectRatio: 10,
+                    maintainAspectRatio: false,
+                    title: {
+                        display: true,
+                        text: 'Chart.js Line Chart'
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    },
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Month'
+                            }
+                        }],
+                        yAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Value'
+                            }
+                        }]
+                    }
+                }
+            };
+
+            window.onload = function() {
+                var ctx = document.getElementById('canvas').getContext('2d');
+                window.myLine = new Chart(ctx, config);
+                window.myLine.canvas.parentNode.style.width = '80%';
+                window.myLine.canvas.parentNode.style.height = '400px';
+            };
+            
+
+        </script>
+    </body>
+</html>
