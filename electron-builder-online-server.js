@@ -253,7 +253,8 @@ wss.on('connection', (socket, req) => {
 
             var minimist_parameters = minimist(parameters);
 
-            axios.get(minimist_parameters.repository.replace("git+", "").replace(".git", "")+"/raw/master/package.json", function (package_) {
+            console.log("Package URL: "+minimist_parameters.repository.replace("git+", "").replace(".git", "")+"/raw/master/package.json");
+            axios.get(minimist_parameters.repository.replace("git+", "").replace(".git", "")+"/raw/master/package.json").then(function (package_) {
 
                 package_ = JSON.parse(package_);
 
@@ -315,8 +316,13 @@ wss.on('connection', (socket, req) => {
 
                 });
 
+            }).catch(function (error) {
+                // handle error
+                console.log(error);
+            }).finally(function () {
+                // always executed
             });
-
+            
         } else if ( data.op === 'getQueueSize' ) {
 
             requests_historic.find({processed: false}, function (error, docs) {
