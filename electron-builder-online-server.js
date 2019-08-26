@@ -8,8 +8,8 @@ const axios = require('axios');
 require('colors');
 
 const Datastore = require('nedb');
-const requests_historic = new Datastore({filename: path.join(os.homedir(), 'electron-builder-online', 'nedb', 'requests_history.db'), autoload: true});
-const emails = new Datastore({filename: path.join(os.homedir(), 'electron-builder-online', 'nedb', 'emails.db'), autoload: true});
+const requests_historic = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedb', 'requests_history.db'), autoload: true});
+const emails = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedb', 'emails.db'), autoload: true});
 
 var NedbStore = require('nedb-session-store')(session);
 
@@ -68,7 +68,6 @@ function processList() {
 
                 isProcessing =  true;
 
-                var minimist_parameters = minimist(docs[0]);
                 var socket = null;
                 for (var i = 0; i < sockets.length; i++) {
                     if ( sockets[i].parameters._id === docs[0]._id ) {
@@ -79,15 +78,15 @@ function processList() {
 
                 socket.send(JSON.stringify({"op": "console_output", "message": "Starting to process your project!!!"}));
 
-                console.log("minimist_parameters: ");
-                console.log(minimist_parameters);
+                console.log("docs[0]: ");
+                console.log(docs[0]);
 
                 var win_ready = true;
-                if ( minimist_parameters.win === true ) {
+                if ( docs[0].win === true ) {
 
                     win_ready = false;
 
-                    var win_parameters = JSON.parse(JSON.stringify(minimist_parameters));
+                    var win_parameters = JSON.parse(JSON.stringify(docs[0]));
 
                     delete win_parameters.linux;
                     delete win_parameters.mac;
@@ -95,7 +94,7 @@ function processList() {
                     var ws_win = new WebSocket('ws://localhost:8006/');
                     ws_win.on('open', function open() {
                         socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Windows Builder.'}));
-                        ws.send(JSON.stringify({'op': 'subscribe', 'parameters': docs[0]}));
+                        ws.send(JSON.stringify({'op': 'subscribe', 'parameters': win_parameters}));
                     });
 
                     ws_win.on('message', function incoming(win_data) {
@@ -119,11 +118,11 @@ function processList() {
                 }
                 
                 var mac_ready = true;
-                if ( minimist_parameters.mac === true ) {
+                if ( docs[0].mac === true ) {
 
                     mac_ready = false;
 
-                    var mac_parameters = JSON.parse(JSON.stringify(minimist_parameters));
+                    var mac_parameters = JSON.parse(JSON.stringify(docs[0]));
 
                     delete mac_parameters.win;
                     delete mac_parameters.linux;
@@ -131,7 +130,7 @@ function processList() {
                     var ws_mac = new WebSocket('ws://localhost:8007/');
                     ws_mac.on('open', function open() {
                         socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Mac Builder.'}));
-                        ws.send(JSON.stringify({'op': 'subscribe', 'parameters': docs[0]}));
+                        ws.send(JSON.stringify({'op': 'subscribe', 'parameters': mac_parameters}));
                     });
 
                     ws_mac.on('message', function incoming(mac_data) {
@@ -163,11 +162,11 @@ function processList() {
                 }
                 
                 var linux_ready = true;
-                if ( minimist_parameters.linux === true ) {
+                if ( docs[0].linux === true ) {
 
                     linux_ready = false;
 
-                    var linux_parameters = JSON.parse(JSON.stringify(minimist_parameters));
+                    var linux_parameters = JSON.parse(JSON.stringify(docs[0]));
 
                     delete linux_parameters.mac;
                     delete linux_parameters.linux;
@@ -175,7 +174,7 @@ function processList() {
                     var ws_linux = new WebSocket('ws://localhost:8005/');
                     ws_linux.on('open', function open() {
                         socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Linux Builder.'}));
-                        ws.send(JSON.stringify({'op': 'subscribe', 'parameters': docs[0]}));
+                        ws.send(JSON.stringify({'op': 'subscribe', 'parameters': linux_parameters}));
                     });
 
                     ws_linux.on('message', function incoming(linux_data) {
@@ -289,6 +288,10 @@ wss.on('connection', (socket, req) => {
                         }
                         
                         if ( valid ) {
+
+                            // processed": false, "aborted": false
+                            minimist_parameters.processed = false;
+                            minimist_parameters.aborted = false;
             
                             // Store on nedb project information to process when compiler is unocupied
                             requests_historic.insert(minimist_parameters, function (error, newDoc) {
