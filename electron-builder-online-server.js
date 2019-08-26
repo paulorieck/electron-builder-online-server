@@ -253,67 +253,67 @@ wss.on('connection', (socket, req) => {
 
             var minimist_parameters = minimist(parameters);
 
-            var package = JSON.parse(fs.readFileSync(__dirname+"/package.json"));
+            axios.get(minimist_parameters.repository.replace("git+", "").replace(".git", "")+"/raw/master/package.json", function (package_) {
 
-            minimist_parameters = Object.assign(minimist_parameters, {"repository": package.repository.url, "version": package.version});
+                package_ = JSON.parse(package_);
 
-            var valid = true;
+                minimist_parameters = Object.assign(minimist_parameters, {"version": package_.version});
 
-            requests_historic.find({"repository": minimist_parameters.repository, "gh_token": minimist_parameters.gh_token, "version": minimist_parameters, "processed": false, "aborted": false}, function (error, docs) {
+                var valid = true;
 
-                if ( docs.length === 0 ) {
+                requests_historic.find({"repository": minimist_parameters.repository, "gh_token": minimist_parameters.gh_token, "version": minimist_parameters, "processed": false, "aborted": false}, function (error, docs) {
 
-                    if ( typeof minimist_parameters.email === "undefined" || minimist_parameters.email === null || minimist_parameters.email === "" ) {
+                    if ( docs.length === 0 ) {
 
-                        socket.send(JSON.stringify({"op": "console_output", "message": "Error! You need to inform a valid email! --email='example@example.com'".red}));
-                        valid = false;
-        
-                    } 
-        
-                    if ( typeof minimist_parameters.gh_token === "undefined" || minimist_parameters.gh_token === null || minimist_parameters.gh_token === "" ) {
-        
-                        socket.send(JSON.stringify({"op": "console_output", "message": "Error! You need to inform a valid email! --gh_token='XXXXXXXXXXXXXXX'".red}));
-                        socket.send(JSON.stringify({"op": "console_output", "message": "Your GitHub tokens will not be stored!".yellow}));
-                        valid = false;
-        
+                        if ( typeof minimist_parameters.email === "undefined" || minimist_parameters.email === null || minimist_parameters.email === "" ) {
+
+                            socket.send(JSON.stringify({"op": "console_output", "message": "Error! You need to inform a valid email! --email='example@example.com'".red}));
+                            valid = false;
+            
+                        } 
+            
+                        if ( typeof minimist_parameters.gh_token === "undefined" || minimist_parameters.gh_token === null || minimist_parameters.gh_token === "" ) {
+            
+                            socket.send(JSON.stringify({"op": "console_output", "message": "Error! You need to inform a valid email! --gh_token='XXXXXXXXXXXXXXX'".red}));
+                            socket.send(JSON.stringify({"op": "console_output", "message": "Your GitHub tokens will not be stored!".yellow}));
+                            valid = false;
+            
+                        }
+                        
+                        if ( valid ) {
+            
+                            delete minimist_parameters._;
+            
+                            console.log("minimist_parameters: ");
+                            console.log(minimist_parameters);
+            
+                            // Store on nedb project information to process when compiler is unocupied
+                            requests_historic.insert(minimist_parameters, function (error, newDoc) {
+            
+                                if ( error ) {
+                                    console.log("Error:");
+                                    console.log(error);
+                                }
+            
+                                socket.parameters = newDoc;
+            
+                                sockets.push(socket);
+                                
+                                socket.send(JSON.stringify({"op": "returned_subscribe", "status": true, "subscription": newDoc._id}));
+            
+                            });
+            
+                        }
+
+                    } else {
+
+                        socket.send(JSON.stringify({"op": "console_output", "message": "This version for the specified GitHub repository is already registered".yellow}));
+
                     }
-                    
-                    if ( valid ) {
-        
-                        delete minimist_parameters._;
-        
-                        console.log("minimist_parameters: ");
-                        console.log(minimist_parameters);
-        
-                        // Store on nedb project information to process when compiler is unocupied
-                        requests_historic.insert(minimist_parameters, function (error, newDoc) {
-        
-                            if ( error ) {
-                                console.log("Error:");
-                                console.log(error);
-                            }
-        
-                            socket.parameters = newDoc;
-        
-                            sockets.push(socket);
-                            
-                            socket.send(JSON.stringify({"op": "returned_subscribe", "status": true, "subscription": newDoc._id}));
-        
-                        });
-        
-                    }
 
-                } else {
-
-                    socket.send(JSON.stringify({"op": "console_output", "message": "This version for the specified GitHub repository is already registered".yellow}));
-
-                }
+                });
 
             });
-
-            
-
-            
 
         } else if ( data.op === 'getQueueSize' ) {
 
