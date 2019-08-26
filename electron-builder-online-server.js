@@ -55,12 +55,7 @@ var isProcessing = false;
 
 function processList() {
 
-    console.log("Checking for job to process...");
-
     requests_historic.find({"processed": false, "aborted": false}, function (error, docs) {
-
-        console.log("processList ==> Queue to processs:");
-        console.log(docs);
 
         if ( error ) {
             console.log("Error:");
@@ -112,7 +107,7 @@ function processList() {
                             var ws_win = new WebSocket('ws://localhost:8006/');
                             ws_win.on('open', function open() {
                                 socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Windows Builder.'}));
-                                ws.send(JSON.stringify({'op': 'subscribe', 'parameters': win_parameters}));
+                                ws_win.send(JSON.stringify({'op': 'subscribe', 'parameters': win_parameters}));
                             });
 
                             ws_win.on('message', function incoming(win_data) {
@@ -148,7 +143,7 @@ function processList() {
                             var ws_mac = new WebSocket('ws://localhost:8007/');
                             ws_mac.on('open', function open() {
                                 socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Mac Builder.'}));
-                                ws.send(JSON.stringify({'op': 'subscribe', 'parameters': mac_parameters}));
+                                ws_mac.send(JSON.stringify({'op': 'subscribe', 'parameters': mac_parameters}));
                             });
 
                             ws_mac.on('message', function incoming(mac_data) {
@@ -192,7 +187,7 @@ function processList() {
                             var ws_linux = new WebSocket('ws://localhost:8005/');
                             ws_linux.on('open', function open() {
                                 socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Linux Builder.'}));
-                                ws.send(JSON.stringify({'op': 'subscribe', 'parameters': linux_parameters}));
+                                ws_linux.send(JSON.stringify({'op': 'subscribe', 'parameters': linux_parameters}));
                             });
 
                             ws_linux.on('message', function incoming(linux_data) {
