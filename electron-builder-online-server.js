@@ -14,6 +14,30 @@ const requests_historic = new Datastore({filename: path.join(os.homedir(), '.ele
 const queues_size = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedbs', 'queues_size.db'), autoload: true});
 const emails = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedbs', 'emails.db'), autoload: true});
 
+var confs = {};
+if ( fs.existsSync(path.join(os.homedir(), '.electron-builder-online', 'configs.json')) ) {
+
+    confs = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.electron-builder-online', 'configs.json')));
+
+    if ( typeof confs.linux_address === "undefined" ) {
+        confs.linux_address = "localhost:8005";
+    }
+
+    if ( typeof confs.win_address === "undefined" ) {
+        confs.win_address = "localhost:8006";
+    }
+
+    if ( typeof confs.mac_address === "undefined" ) {
+        confs.mac_address = "localhost:8007";
+    }
+
+} else {
+
+    confs = {"linux_address": "localhost:8005", "win_address": "localhost:8006", "mac_address": "localhost:8007"};
+
+}
+fs.writeFileSync(path.join(os.homedir(), '.electron-builder-online', 'configs.json'), JSON.stringify(confs));
+
 var NedbStore = require('nedb-session-store')(session);
 
 var app = express();
@@ -107,7 +131,7 @@ function processList() {
                             delete win_parameters.linux;
                             delete win_parameters.mac;
 
-                            var ws_win = new WebSocket('ws://localhost:8006/');
+                            var ws_win = new WebSocket('ws://'+confs.win_address+'/');
                             ws_win.on('open', function open() {
                                 socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Windows Builder.'}));
                                 ws_win.send(JSON.stringify({'op': 'subscribe', 'parameters': win_parameters}));
@@ -150,7 +174,7 @@ function processList() {
                             delete mac_parameters.win;
                             delete mac_parameters.linux;
 
-                            var ws_mac = new WebSocket('ws://localhost:8007/');
+                            var ws_mac = new WebSocket('ws://'+confs.mac_address+'/');
                             ws_mac.on('open', function open() {
                                 socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Mac Builder.'}));
                                 ws_mac.send(JSON.stringify({'op': 'subscribe', 'parameters': mac_parameters}));
@@ -193,7 +217,7 @@ function processList() {
                             delete linux_parameters.mac;
                             delete linux_parameters.linux;
 
-                            var ws_linux = new WebSocket('ws://localhost:8005/');
+                            var ws_linux = new WebSocket('ws://'+confs.linux_address+'/');
                             ws_linux.on('open', function open() {
                                 socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Linux Builder.'}));
                                 ws_linux.send(JSON.stringify({'op': 'subscribe', 'parameters': linux_parameters}));
@@ -236,6 +260,8 @@ function processList() {
                                 
                                     // Mark as ready on database
                                     socket.send(JSON.stringify({"op": "console_output", "message": 'Congratulations! Your job has completed! It took '+(prettyMilliseconds(time_to_proccess_job))+' seconds to run.'}));
+
+                                    isProcessing = false;
 
                                 });
 
