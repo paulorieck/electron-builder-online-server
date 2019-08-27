@@ -231,7 +231,6 @@ function processList() {
                                 
                                     // Mark as ready on database
                                     socket.send(JSON.stringify({"op": "console_output", "message": 'Congratulations! Your job has completed!'}));
-                                    socket = null;
 
                                 });
 
@@ -409,6 +408,14 @@ wss.on('connection', (socket, req) => {
 
         // Eliminates socket from sockets array
         console.log('Socket closed');
+
+        for (var i = 0; i < sockets.length; i++) {
+            if ( sockets[i].parameters._id === socket.parameters._id ) {
+                sockets[i].splice(i,1);
+                socket = null;
+                break;
+            }
+        }
 
     });
 
