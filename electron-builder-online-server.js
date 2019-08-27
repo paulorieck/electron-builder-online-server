@@ -5,7 +5,8 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
-var cron = require('node-cron');
+const cron = require('node-cron');
+const prettyMilliseconds = require('pretty-ms');
 require('colors');
 
 const Datastore = require('nedb');
@@ -234,7 +235,7 @@ function processList() {
                                 requests_historic.update({_id: docs[0]._id}, {$set: {"processed": true, "time_to_proccess_job": time_to_proccess_job}}, {multi: false}, function (error, docs) {
                                 
                                     // Mark as ready on database
-                                    socket.send(JSON.stringify({"op": "console_output", "message": 'Congratulations! Your job has completed!'}));
+                                    socket.send(JSON.stringify({"op": "console_output", "message": 'Congratulations! Your job has completed! It took '+(prettyMilliseconds(time_to_proccess_job))+' seconds to run.'}));
 
                                 });
 
