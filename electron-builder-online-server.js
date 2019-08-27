@@ -74,6 +74,8 @@ function processList() {
                     }
                 }
 
+                var start_time = (new Date()).getTime();
+
                 if ( socket === null ) {
 
                     // Abort
@@ -227,7 +229,9 @@ function processList() {
 
                             if ( win_ready && mac_ready && linux_ready ) {
 
-                                requests_historic.update({_id: docs[0]._id}, {$set: {processed: true}}, {multi: false}, function (error, docs) {
+                                var time_to_proccess_job = (new Date()).getTime() - start_time;
+
+                                requests_historic.update({_id: docs[0]._id}, {$set: {"processed": true, "time_to_proccess_job": time_to_proccess_job}}, {multi: false}, function (error, docs) {
                                 
                                     // Mark as ready on database
                                     socket.send(JSON.stringify({"op": "console_output", "message": 'Congratulations! Your job has completed!'}));
@@ -411,7 +415,7 @@ wss.on('connection', (socket, req) => {
 
         for (var i = 0; i < sockets.length; i++) {
             if ( sockets[i].parameters._id === socket.parameters._id ) {
-                sockets[i].splice(i,1);
+                sockets.splice(i,1);
                 socket = null;
                 break;
             }
