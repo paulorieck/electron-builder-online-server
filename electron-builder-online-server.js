@@ -210,7 +210,7 @@ function processList() {
                                         win_ready = true;
                                         ws_win.close();
 
-                                    } else if ( win_data.message.indexOf("exited with code") !== 1 ) {
+                                    } else if ( win_data.message.indexOf("exited with code") !== -1 ) {
 
                                         processCode(win_data.message, ws_win, socket, this_system, this_color, function (win_ready_) {
                                             win_ready = win_ready_;
@@ -254,9 +254,6 @@ function processList() {
 
                                 mac_data = JSON.parse(mac_data);
 
-                                console.log("mac_data: ");
-                                console.log(mac_data);
-
                                 if ( mac_data.op === 'console_output' ) {
 
                                     socket.send(JSON.stringify({"op": "console_output", "message": mac_data.message.this_color}));
@@ -266,7 +263,7 @@ function processList() {
                                         mac_ready = true;
                                         ws_mac.close();
 
-                                    } else if ( mac_data.message.indexOf("exited with code") !== 1 ) {
+                                    } else if ( mac_data.message.indexOf("exited with code") !== -1 ) {
 
                                         console.log("mac_data.message.indexOf('exited with code'): "+mac_data.message.indexOf("exited with code"));
 
@@ -320,7 +317,7 @@ function processList() {
                                         linux_ready = true;
                                         ws_linux.close();
 
-                                    } else if ( linux_data.message.indexOf("exited with code") !== 1 ) {
+                                    } else if ( linux_data.message.indexOf("exited with code") !== -1 ) {
 
                                         processCode(linux_data.message, ws_linux, socket, this_system, this_color, function (linux_ready_) {
                                             linux_ready = linux_ready_;
