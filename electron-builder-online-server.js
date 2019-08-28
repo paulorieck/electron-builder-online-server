@@ -90,10 +90,8 @@ function processCode(message, ws, socket, this_system, this_color, callback) {
     console.log("processCode ==> message: '"+message+"'");
 
     c1 = parseFloat(message.charAt(message.length-1));
-    console.log("c1: "+c1);
     try {
         c2 = parseFloat(message.charAt(message.length-2));
-        console.log("c2: "+c2);
         try {
             c3 = parseFloat(message.slice(-3));
         } catch (Err) {}
@@ -103,19 +101,19 @@ function processCode(message, ws, socket, this_system, this_color, callback) {
     } catch (Err) {}
     
     var code = "";
-    if ( typeof c1 !== "undefined" ) {
+    if ( !isNaN(c1) ) {
         code = c1+code;
     }
 
-    if ( typeof c2 !== "undefined" ) {
+    if ( !isNaN(c2) ) {
         code = c2+code;
     }
 
-    if ( typeof c3 !== "undefined" ) {
+    if ( !isNaN(c3) ) {
         code = c3+code;
     }
 
-    if ( typeof c4 !== "undefined" ) {
+    if ( !isNaN(c4) ) {
         code = c4+code;
     }
 
