@@ -1,6 +1,6 @@
 {
   "name": "electron-builder-online-server",
-  "version": "0.0.41",
+  "version": "0.0.42",
   "description": "Build electron applications online for windows, linux and mac os x. Automatically deploy them to GitHub Releases",
   "main": "electron-builder-online-server.js",
   "scripts": {

@@ -253,6 +253,10 @@ function processList() {
                             ws_mac.on('message', function incoming(mac_data) {
 
                                 mac_data = JSON.parse(mac_data);
+
+                                console.log("mac_data: ");
+                                console.log(mac_data);
+                                
                                 if ( mac_data.op === 'console_output' ) {
 
                                     socket.send(JSON.stringify({"op": "console_output", "message": mac_data.message.this_color}));
