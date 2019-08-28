@@ -7,7 +7,7 @@ const fs = require('fs');
 const axios = require('axios');
 const cron = require('node-cron');
 const prettyMilliseconds = require('pretty-ms');
-require('colors');
+const colors = require('colors');
 
 const Datastore = require('nedb');
 const requests_historic = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedbs', 'requests_history.db'), autoload: true});
@@ -83,7 +83,7 @@ var sockets = [];
 
 var isProcessing = false;
 
-function processColor(message, ws, socket, this_system, this_color, callback) {
+function processCode(message, ws, socket, this_system, this_color, callback) {
 
     var c1, c2, c3, c4
 
@@ -181,7 +181,7 @@ function processList() {
                             win_ready = false;
 
                             var this_system = "Windows";
-                            var this_color = blue;
+                            var this_color = colors.blue;
 
                             var win_parameters = JSON.parse(JSON.stringify(docs[0]));
 
@@ -233,7 +233,7 @@ function processList() {
                             mac_ready = false;
 
                             var this_system = "MAC OS X";
-                            var this_color = red;
+                            var this_color = colors.red;
 
                             var mac_parameters = JSON.parse(JSON.stringify(docs[0]));
 
@@ -285,7 +285,7 @@ function processList() {
                             linux_ready = false;
 
                             var this_system = "Linux";
-                            var this_color = yellow;
+                            var this_color = colors.yellow;
 
                             var linux_parameters = JSON.parse(JSON.stringify(docs[0]));
 
