@@ -85,7 +85,10 @@ var isProcessing = false;
 
 function processCode(message, ws, socket, this_system, this_color, callback) {
 
-    var c1, c2, c3, c4
+    var c1, c2, c3, c4;
+
+    console.log("processCode ==> message: ");
+    console.log(message);
 
     c1 = parseFloat(message.charAt(message.length()-1));
     try {
@@ -116,6 +119,7 @@ function processCode(message, ws, socket, this_system, this_color, callback) {
     }
 
     code = parseFloat(code);
+    console.log("code: "+code);
 
     if ( code !== 0 ) {
 
