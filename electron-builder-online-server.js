@@ -15,6 +15,11 @@ const queues_size = new Datastore({filename: path.join(os.homedir(), '.electron-
 const emails = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedbs', 'emails.db'), autoload: true});
 
 var confs = {};
+
+if ( !fs.existsSync(path.join(os.homedir(), '.electron-builder-online')) ) {
+    fs.mkdirSync(path_module.join(homedir, ".electron-builder-online"));
+}
+
 if ( fs.existsSync(path.join(os.homedir(), '.electron-builder-online', 'configs.json')) ) {
 
     confs = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.electron-builder-online', 'configs.json')));
@@ -78,6 +83,55 @@ var sockets = [];
 
 var isProcessing = false;
 
+function processColor(message, ws, socket, this_system, this_color, callback) {
+
+    var c1, c2, c3, c4
+
+    c1 = parseFloat(message.charAt(message.length()-1));
+    try {
+        c2 = parseFloat(message.charAt(message.length()-2));
+        try {
+            c3 = parseFloat(message.charAt(message.length()-3));
+        } catch (Err) {}
+        try {
+            c4 = parseFloat(message.charAt(message.length()-4));
+        } catch (Err) {}
+    } catch (Err) {}
+    
+    var code = "";
+    if ( typeof c1 !== "undefined" ) {
+        code = c1+code;
+    }
+
+    if ( typeof c2 !== "undefined" ) {
+        code = c2+code;
+    }
+
+    if ( typeof c3 !== "undefined" ) {
+        code = c3+code;
+    }
+
+    if ( typeof c4 !== "undefined" ) {
+        code = c4+code;
+    }
+
+    code = parseFloat(code);
+
+    if ( code !== 0 ) {
+
+        callback(true);
+        ws.close();
+
+        socket.send(JSON.stringify({"op": "console_output", "message": "Error while processing job on "+this_system+"!".this_color}));
+        
+    } else {
+
+        callback(false);
+
+    }
+
+}
+
 function processList() {
 
     requests_historic.find({"processed": false, "aborted": false}, function (error, docs) {
@@ -126,6 +180,9 @@ function processList() {
 
                             win_ready = false;
 
+                            var this_system = "Windows";
+                            var this_color = blue;
+
                             var win_parameters = JSON.parse(JSON.stringify(docs[0]));
 
                             delete win_parameters.linux;
@@ -142,12 +199,18 @@ function processList() {
                                 win_data = JSON.parse(win_data);
                                 if ( win_data.op === 'console_output' ) {
 
-                                    socket.send(JSON.stringify({"op": "console_output", "message": win_data.message.blue}));
+                                    socket.send(JSON.stringify({"op": "console_output", "message": win_data.message.this_color}));
 
-                                    if ( win_data.message.blue.indexOf('Done') !== -1 ) {
+                                    if ( win_data.message.indexOf('Done') !== -1 ) {
 
                                         win_ready = true;
                                         ws_win.close();
+
+                                    } else if ( win_data.message.indexOf("exited with code") !== 1 ) {
+
+                                        processCode(win_data.message, ws_win, socket, this_system, this_color, function (win_ready_) {
+                                            win_ready = win_ready_;
+                                        });
 
                                     }
 
@@ -169,6 +232,9 @@ function processList() {
 
                             mac_ready = false;
 
+                            var this_system = "MAC OS X";
+                            var this_color = red;
+
                             var mac_parameters = JSON.parse(JSON.stringify(docs[0]));
 
                             delete mac_parameters.win;
@@ -185,12 +251,18 @@ function processList() {
                                 mac_data = JSON.parse(mac_data);
                                 if ( mac_data.op === 'console_output' ) {
 
-                                    socket.send(JSON.stringify({"op": "console_output", "message": mac_data.message.red}));
+                                    socket.send(JSON.stringify({"op": "console_output", "message": mac_data.message.this_color}));
 
-                                    if ( mac_data.message.blue.indexOf('Done') !== -1 ) {
+                                    if ( mac_data.message.indexOf('Done') !== -1 ) {
 
                                         mac_ready = true;
                                         ws_mac.close();
+
+                                    } else if ( mac_data.message.indexOf("exited with code") !== 1 ) {
+
+                                        processCode(mac_data.message, ws_mac, socket, this_system, this_color, function (mac_ready_) {
+                                            mac_ready = mac_ready_;
+                                        });
 
                                     }
 
@@ -212,6 +284,9 @@ function processList() {
 
                             linux_ready = false;
 
+                            var this_system = "Linux";
+                            var this_color = yellow;
+
                             var linux_parameters = JSON.parse(JSON.stringify(docs[0]));
 
                             delete linux_parameters.mac;
@@ -228,12 +303,18 @@ function processList() {
                                 linux_data = JSON.parse(linux_data);
                                 if ( linux_data.op === 'console_output' ) {
 
-                                    socket.send(JSON.stringify({"op": "console_output", "message": linux_data.message.yellow}));
+                                    socket.send(JSON.stringify({"op": "console_output", "message": linux_data.message.this_color}));
 
                                     if ( linux_data.message.blue.indexOf('Done') !== -1 ) {
 
                                         linux_ready = true;
                                         ws_linux.close();
+
+                                    } else if ( linux_data.message.indexOf("exited with code") !== 1 ) {
+
+                                        processCode(linux_data.message, ws_linux, socket, this_system, this_color, function (linux_ready_) {
+                                            linux_ready = linux_ready_;
+                                        });
 
                                     }
 
