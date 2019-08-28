@@ -7,7 +7,7 @@ const fs = require('fs');
 const axios = require('axios');
 const cron = require('node-cron');
 const prettyMilliseconds = require('pretty-ms');
-const colors = require('colors');
+require('colors');
 
 const Datastore = require('nedb');
 const requests_historic = new Datastore({filename: path.join(os.homedir(), '.electron-builder-online', 'nedbs', 'requests_history.db'), autoload: true});
