@@ -256,7 +256,7 @@ function processList() {
 
                                 console.log("mac_data: ");
                                 console.log(mac_data);
-                                
+
                                 if ( mac_data.op === 'console_output' ) {
 
                                     socket.send(JSON.stringify({"op": "console_output", "message": mac_data.message.this_color}));
@@ -267,6 +267,8 @@ function processList() {
                                         ws_mac.close();
 
                                     } else if ( mac_data.message.indexOf("exited with code") !== 1 ) {
+
+                                        console.log("mac_data.message.indexOf('exited with code'): "+mac_data.message.indexOf("exited with code"));
 
                                         processCode(mac_data.message, ws_mac, socket, this_system, this_color, function (mac_ready_) {
                                             mac_ready = mac_ready_;
