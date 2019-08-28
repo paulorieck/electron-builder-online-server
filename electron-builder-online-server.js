@@ -90,8 +90,10 @@ function processCode(message, ws, socket, this_system, this_color, callback) {
     console.log("processCode ==> message: '"+message+"'");
 
     c1 = parseFloat(message.slice(-1));
+    console.log("c1: "+c1);
     try {
         c2 = parseFloat(message.slice(-2));
+        console.log("c2: "+c2);
         try {
             c3 = parseFloat(message.slice(-3));
         } catch (Err) {}
