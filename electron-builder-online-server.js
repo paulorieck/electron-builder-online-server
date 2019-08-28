@@ -83,11 +83,9 @@ var sockets = [];
 
 var isProcessing = false;
 
-function processCode(message, ws, socket, this_system, this_color, callback) {
+function processCode(message, ws, socket, this_system, callback) {
 
     var c1, c2, c3, c4;
-
-    console.log("processCode ==> message: '"+message+"'");
 
     c1 = parseFloat(message.charAt(message.length-1));
     try {
@@ -118,14 +116,13 @@ function processCode(message, ws, socket, this_system, this_color, callback) {
     }
 
     code = parseFloat(code);
-    console.log("code: "+code);
 
     if ( code !== 0 ) {
 
         callback(true);
         ws.close();
 
-        socket.send(JSON.stringify({"op": "console_output", "message": "Error while processing job on "+this_system+"!".this_color}));
+        socket.send(JSON.stringify({"op": "console_output", "message": "Error while processing job on "+this_system+"!", "os": this_system}));
         
     } else {
 
@@ -184,7 +181,6 @@ function processList() {
                             win_ready = false;
 
                             var this_system = "Windows";
-                            var this_color = colors.blue;
 
                             var win_parameters = JSON.parse(JSON.stringify(docs[0]));
 
@@ -193,7 +189,7 @@ function processList() {
 
                             var ws_win = new WebSocket('ws://'+confs.win_address+'/');
                             ws_win.on('open', function open() {
-                                socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Windows Builder.'}));
+                                socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Windows Builder.', "os": "win32"}));
                                 ws_win.send(JSON.stringify({'op': 'subscribe', 'parameters': win_parameters}));
                             });
 
@@ -202,7 +198,7 @@ function processList() {
                                 win_data = JSON.parse(win_data);
                                 if ( win_data.op === 'console_output' ) {
 
-                                    socket.send(JSON.stringify({"op": "console_output", "message": win_data.message.this_color}));
+                                    socket.send(JSON.stringify({"op": "console_output", "message": win_data.message, "os": "win32"}));
 
                                     if ( win_data.message.indexOf('Done') !== -1 ) {
 
@@ -211,7 +207,7 @@ function processList() {
 
                                     } else if ( win_data.message.indexOf("exited with code") !== -1 ) {
 
-                                        processCode(win_data.message, ws_win, socket, this_system, this_color, function (win_ready_) {
+                                        processCode(win_data.message, ws_win, socket, this_system, function (win_ready_) {
                                             win_ready = win_ready_;
                                         });
 
@@ -235,8 +231,7 @@ function processList() {
 
                             mac_ready = false;
 
-                            var this_system = "MAC OS X";
-                            var this_color = colors.red;
+                            var this_system = "darwin";
 
                             var mac_parameters = JSON.parse(JSON.stringify(docs[0]));
 
@@ -245,7 +240,7 @@ function processList() {
 
                             var ws_mac = new WebSocket('ws://'+confs.mac_address+'/');
                             ws_mac.on('open', function open() {
-                                socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Mac Builder.'}));
+                                socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Mac Builder.', "os": "darwin"}));
                                 ws_mac.send(JSON.stringify({'op': 'subscribe', 'parameters': mac_parameters}));
                             });
 
@@ -255,7 +250,7 @@ function processList() {
 
                                 if ( mac_data.op === 'console_output' ) {
 
-                                    socket.send(JSON.stringify({"op": "console_output", "message": mac_data.message.this_color}));
+                                    socket.send(JSON.stringify({"op": "console_output", "message": mac_data.message, "os": "darwin"}));
 
                                     if ( mac_data.message.indexOf('Done') !== -1 ) {
 
@@ -264,9 +259,7 @@ function processList() {
 
                                     } else if ( mac_data.message.indexOf("exited with code") !== -1 ) {
 
-                                        console.log("mac_data.message.indexOf('exited with code'): "+mac_data.message.indexOf("exited with code"));
-
-                                        processCode(mac_data.message, ws_mac, socket, this_system, this_color, function (mac_ready_) {
+                                        processCode(mac_data.message, ws_mac, socket, this_system, function (mac_ready_) {
                                             mac_ready = mac_ready_;
                                         });
 
@@ -290,8 +283,7 @@ function processList() {
 
                             linux_ready = false;
 
-                            var this_system = "Linux";
-                            var this_color = colors.yellow;
+                            var this_system = "linux";
 
                             var linux_parameters = JSON.parse(JSON.stringify(docs[0]));
 
@@ -309,7 +301,7 @@ function processList() {
                                 linux_data = JSON.parse(linux_data);
                                 if ( linux_data.op === 'console_output' ) {
 
-                                    socket.send(JSON.stringify({"op": "console_output", "message": linux_data.message.this_color}));
+                                    socket.send(JSON.stringify({"op": "console_output", "message": linux_data.message, "os": "linux"}));
 
                                     if ( linux_data.message.blue.indexOf('Done') !== -1 ) {
 
@@ -318,7 +310,7 @@ function processList() {
 
                                     } else if ( linux_data.message.indexOf("exited with code") !== -1 ) {
 
-                                        processCode(linux_data.message, ws_linux, socket, this_system, this_color, function (linux_ready_) {
+                                        processCode(linux_data.message, ws_linux, socket, this_system, function (linux_ready_) {
                                             linux_ready = linux_ready_;
                                         });
 
