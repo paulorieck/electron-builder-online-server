@@ -91,10 +91,10 @@ function processCode(message, ws, socket, this_system, callback) {
     try {
         c2 = parseFloat(message.charAt(message.length-2));
         try {
-            c3 = parseFloat(message.slice(-3));
-        } catch (Err) {}
-        try {
-            c4 = parseFloat(message.slice(-4));
+            c3 = parseFloat(message.charAt(message.length-3));
+            try {
+                c4 = parseFloat(message.charAt(message.length-4));
+            } catch (Err) {}
         } catch (Err) {}
     } catch (Err) {}
     
@@ -339,7 +339,6 @@ function processList() {
                                 
                                     // Mark as ready on database
                                     socket.send(JSON.stringify({"op": "console_output", "message": 'Congratulations! Your job has completed! It took '+(prettyMilliseconds(time_to_proccess_job))+' seconds to run.'}));
-
                                     isProcessing = false;
 
                                 });
