@@ -181,8 +181,6 @@ function processList() {
 
                             win_ready = false;
 
-                            var this_system = "win32";
-
                             var win_parameters = JSON.parse(JSON.stringify(docs[0]));
 
                             delete win_parameters.linux;
@@ -203,7 +201,7 @@ function processList() {
 
                                     if ( win_data.message.indexOf("exited with code") !== -1 ) {
 
-                                        processCode(win_data.message, ws_win, socket, this_system, function (win_ready_) {
+                                        processCode(win_data.message, ws_win, socket, "win32", function (win_ready_) {
                                             win_ready = win_ready_;
                                         });
 
@@ -215,7 +213,7 @@ function processList() {
 
                                         win_ready = true;
                                         ws_win.close();
-                                        socket.send(JSON.stringify({"op": "console_output", "message": "Closed connection with "+this_system+"!", "os": this_system}));
+                                        socket.send(JSON.stringify({"op": "console_output", "message": "Closed connection with "+"win32"+"!", "os": "win32"}));
                                         
                                     }
 
@@ -229,8 +227,6 @@ function processList() {
                         if ( docs[0].mac === true ) {
 
                             mac_ready = false;
-
-                            var this_system = "darwin";
 
                             var mac_parameters = JSON.parse(JSON.stringify(docs[0]));
 
@@ -253,7 +249,7 @@ function processList() {
 
                                     if ( mac_data.message.indexOf("exited with code") !== -1 ) {
 
-                                        processCode(mac_data.message, ws_mac, socket, this_system, function (mac_ready_) {
+                                        processCode(mac_data.message, ws_mac, socket, "darwin", function (mac_ready_) {
                                             mac_ready = mac_ready_;
                                         });
 
@@ -265,7 +261,7 @@ function processList() {
 
                                         mac_ready = true;
                                         ws_mac.close();
-                                        socket.send(JSON.stringify({"op": "console_output", "message": "Closed connection with "+this_system+"!", "os": this_system}));
+                                        socket.send(JSON.stringify({"op": "console_output", "message": "Closed connection with "+"darwin"+"!", "os": "darwin"}));
 
                                     }
 
@@ -279,8 +275,6 @@ function processList() {
                         if ( docs[0].linux === true ) {
 
                             linux_ready = false;
-
-                            var this_system = "linux";
 
                             var linux_parameters = JSON.parse(JSON.stringify(docs[0]));
 
@@ -302,7 +296,7 @@ function processList() {
 
                                     if ( linux_data.message.indexOf("exited with code") !== -1 ) {
 
-                                        processCode(linux_data.message, ws_linux, socket, this_system, function (linux_ready_) {
+                                        processCode(linux_data.message, ws_linux, socket, "linux", function (linux_ready_) {
                                             linux_ready = linux_ready_;
                                         });
 
@@ -314,7 +308,7 @@ function processList() {
 
                                         linux_ready = true;
                                         ws_linux.close();
-                                        socket.send(JSON.stringify({"op": "console_output", "message": "Closed connection with "+this_system+"!", "os": this_system}));
+                                        socket.send(JSON.stringify({"op": "console_output", "message": "Closed connection with "+"linux"+"!", "os": "linux"}));
 
                                     }
 
