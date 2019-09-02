@@ -122,6 +122,7 @@ function processCode(message, ws, socket, this_system, callback) {
         callback(true);
         ws.close();
 
+        socket.send(JSON.stringify({"op": "console_output", "message": "Closed connection with "+this_system+"!", "os": this_system}));
         socket.send(JSON.stringify({"op": "console_output", "message": "Error while processing job on "+this_system+"!", "os": this_system}));
         
     } else {
@@ -180,7 +181,7 @@ function processList() {
 
                             win_ready = false;
 
-                            var this_system = "Windows";
+                            var this_system = "win32";
 
                             var win_parameters = JSON.parse(JSON.stringify(docs[0]));
 
@@ -200,12 +201,7 @@ function processList() {
 
                                     socket.send(JSON.stringify({"op": "console_output", "message": win_data.message, "os": "win32"}));
 
-                                    if ( win_data.message.indexOf('Done') !== -1 ) {
-
-                                        win_ready = true;
-                                        ws_win.close();
-
-                                    } else if ( win_data.message.indexOf("exited with code") !== -1 ) {
+                                    if ( win_data.message.indexOf("exited with code") !== -1 ) {
 
                                         processCode(win_data.message, ws_win, socket, this_system, function (win_ready_) {
                                             win_ready = win_ready_;
@@ -216,8 +212,11 @@ function processList() {
                                 } else if ( win_data.op === 'job_concluded' ) {
 
                                     if ( win_data.status === true ) {
+
                                         win_ready = true;
                                         ws_win.close();
+                                        socket.send(JSON.stringify({"op": "console_output", "message": "Closed connection with "+this_system+"!", "os": this_system}));
+                                        
                                     }
 
                                 }
@@ -252,12 +251,7 @@ function processList() {
 
                                     socket.send(JSON.stringify({"op": "console_output", "message": mac_data.message, "os": "darwin"}));
 
-                                    if ( mac_data.message.indexOf('Done') !== -1 ) {
-
-                                        mac_ready = true;
-                                        ws_mac.close();
-
-                                    } else if ( mac_data.message.indexOf("exited with code") !== -1 ) {
+                                    if ( mac_data.message.indexOf("exited with code") !== -1 ) {
 
                                         processCode(mac_data.message, ws_mac, socket, this_system, function (mac_ready_) {
                                             mac_ready = mac_ready_;
@@ -268,8 +262,11 @@ function processList() {
                                 } else if ( mac_data.op === 'job_concluded' ) {
 
                                     if ( mac_data.status === true ) {
+
                                         mac_ready = true;
                                         ws_mac.close();
+                                        socket.send(JSON.stringify({"op": "console_output", "message": "Closed connection with "+this_system+"!", "os": this_system}));
+
                                     }
 
                                 }
@@ -292,7 +289,7 @@ function processList() {
 
                             var ws_linux = new WebSocket('ws://'+confs.linux_address+'/');
                             ws_linux.on('open', function open() {
-                                socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Linux Builder.'}));
+                                socket.send(JSON.stringify({"op": "console_output", "message": 'WebSocket opened to Linux Builder.', "os": "linux"}));
                                 ws_linux.send(JSON.stringify({'op': 'subscribe', 'parameters': linux_parameters}));
                             });
 
@@ -303,12 +300,7 @@ function processList() {
 
                                     socket.send(JSON.stringify({"op": "console_output", "message": linux_data.message, "os": "linux"}));
 
-                                    if ( linux_data.message.blue.indexOf('Done') !== -1 ) {
-
-                                        linux_ready = true;
-                                        ws_linux.close();
-
-                                    } else if ( linux_data.message.indexOf("exited with code") !== -1 ) {
+                                    if ( linux_data.message.indexOf("exited with code") !== -1 ) {
 
                                         processCode(linux_data.message, ws_linux, socket, this_system, function (linux_ready_) {
                                             linux_ready = linux_ready_;
@@ -319,8 +311,11 @@ function processList() {
                                 } else if ( linux_data.op === 'job_concluded' ) {
 
                                     if ( linux_data.status === true ) {
+
                                         linux_ready = true;
                                         ws_linux.close();
+                                        socket.send(JSON.stringify({"op": "console_output", "message": "Closed connection with "+this_system+"!", "os": this_system}));
+
                                     }
 
                                 }
